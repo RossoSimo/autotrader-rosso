@@ -1,0 +1,38 @@
+# Secrets: never commit (secrets.example.ts stays tracked)
+secrets.ts
+secrets.*.ts
+!secrets.example.ts
+.env
+.env.*
+
+# Runtime state: baton, lock, history, fake broker
+state/
+
+# Run and scheduler logs
+logs/
+*.log
+
+# Leftovers from atomic writes (temp file + rename)
+*.tmp
+
+# Bun / dependencies / build output
+node_modules/
+dist/
+out/
+coverage/
+*.tsbuildinfo
+.bun/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

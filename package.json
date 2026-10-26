@@ -1,0 +1,11 @@
+{
+  "name": "autotrader-rosso",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "schedule": "bun src/cli.ts schedule",
+    "once": "bun src/cli.ts once",
+    "status": "bun src/cli.ts status",
+    "test": "bun test"
+  }
+}
