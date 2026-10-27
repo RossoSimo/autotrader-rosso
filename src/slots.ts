@@ -1,19 +1,54 @@
 import { SLOTS, type SlotName } from "./config";
 import type { Slot } from "./types";
 
-const romeFormat = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Europe/Rome",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-});
+const formats = new Map<string, Intl.DateTimeFormat>();
+function zoneFormat(zone: string): Intl.DateTimeFormat {
+  let f = formats.get(zone);
+  if (!f) {
+    f = new Intl.DateTimeFormat("en-GB", {
+      timeZone: zone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    });
+    formats.set(zone, f);
+  }
+  return f;
+}
+
+/** Wall-clock date and time of an instant in a time zone. */
+export function zonedNow(now: Date, zone: string): { date: string; time: string } {
+  const p = Object.fromEntries(zoneFormat(zone).formatToParts(now).map((x) => [x.type, x.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
+}
 
 export function romeNow(now: Date): { date: string; time: string } {
-  const p = Object.fromEntries(romeFormat.formatToParts(now).map((x) => [x.type, x.value]));
-  return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
+  return zonedNow(now, "Europe/Rome");
+}
+
+/** The instant a wall-clock date and time happens in a zone (twice-corrected for DST). */
+export function zonedInstant(date: string, time: string, zone: string): Date {
+  const wall = Date.parse(`${date}T${time}:00Z`);
+  let t = wall;
+  for (let i = 0; i < 2; i++) {
+    const seen = zonedNow(new Date(t), zone);
+    t += wall - Date.parse(`${seen.date}T${seen.time}:00Z`);
+  }
+  return new Date(t);
+}
+
+/** When a slot really fires. */
+export function firesAt(slot: Slot): Date {
+  const def = SLOTS.find((s) => s.time === slot.time)!;
+  return zonedInstant(slot.date, def.at, def.zone);
+}
+
+/** "HH:MM Rome" of when a slot really fires. */
+export function romeFireTime(slot: Slot): string {
+  return romeNow(firesAt(slot)).time;
 }
 
 export function makeSlot(date: string, time: string): Slot {
@@ -39,23 +74,18 @@ export function isWeekday(date: string): boolean {
   return wd !== 0 && wd !== 6;
 }
 
-function minutes(time: string): number {
-  const [h, m] = time.split(":").map(Number);
-  return h! * 60 + m!;
-}
-
-/** Most recent slot of today at or before now (null if before the first slot). */
+/** Most recent slot of today (Rome date) that has already fired (null if none yet). */
 export function latestSlotToday(now: Date): Slot | null {
-  const { date, time } = romeNow(now);
-  const past = SLOTS.filter((s) => s.time <= time);
-  return past.length ? makeSlot(date, past[past.length - 1]!.time) : null;
+  const { date } = romeNow(now);
+  const past = SLOTS.map((s) => makeSlot(date, s.time)).filter((s) => firesAt(s) <= now);
+  return past.length ? past[past.length - 1]! : null;
 }
 
 /** The slot the scheduler should fire now, if any: weekday, and within the grace window. */
 export function dueSlot(now: Date, graceMinutes: number): Slot | null {
   const slot = latestSlotToday(now);
   if (!slot || !isWeekday(slot.date)) return null;
-  const late = minutes(romeNow(now).time) - minutes(slot.time);
+  const late = (now.getTime() - firesAt(slot).getTime()) / 60_000;
   return late <= graceMinutes ? slot : null;
 }
 

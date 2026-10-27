@@ -5,7 +5,7 @@ import { acquireLock, reconcile, releaseLock, updateLock, type LockData } from "
 import type { Logger } from "./log";
 import { buildPrompt } from "./prompt";
 import { dayPnl, formatAlert, formatReport } from "./report";
-import { missedSlots, nextSlot } from "./slots";
+import { missedSlots, nextSlot, romeFireTime } from "./slots";
 import {
   DuplicateOrderError,
   type Account,
@@ -91,7 +91,7 @@ export async function runOnce(slot: Slot, force: boolean, d: RunDeps): Promise<R
     batonNote = `Previous run ${baton.runId}.`;
     const missed = missedSlots(baton.runId, runId);
     if (missed.length) {
-      const shown = missed.slice(0, 12).map((s) => `${s.date} ${s.time} ${s.name}`);
+      const shown = missed.slice(0, 12).map((s) => `${s.date} ${romeFireTime(s)} ${s.name}`);
       if (missed.length > 12) shown.push(`...and ${missed.length - 12} more`);
       await alert([
         `Missed ${missed.length} scheduled run(s) since ${baton.runId} (machine off or offline). They will not be run late:`,

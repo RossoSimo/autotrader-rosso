@@ -9,11 +9,16 @@ export const MAX_WEIGHT = 0.2;
 export const STOP_LOSS = -0.03;
 
 export type SlotName = "briefing" | "opening" | "mid-session" | "closing";
-export const SLOTS: { time: string; name: SlotName }[] = [
-  { time: "09:00", name: "briefing" },
-  { time: "15:40", name: "opening" },
-  { time: "18:30", name: "mid-session" },
-  { time: "21:40", name: "closing" },
+/**
+ * `time` is the slot's label (its usual Rome time; it names run ids and --slot).
+ * The slot actually fires at `at` in `zone`: market slots follow New York, because Italy
+ * and the US change clocks on different dates and the market then shifts by an hour in Rome.
+ */
+export const SLOTS: { time: string; name: SlotName; zone: string; at: string }[] = [
+  { time: "09:00", name: "briefing", zone: "Europe/Rome", at: "09:00" },
+  { time: "15:40", name: "opening", zone: "America/New_York", at: "09:40" },
+  { time: "18:30", name: "mid-session", zone: "America/New_York", at: "12:30" },
+  { time: "21:40", name: "closing", zone: "America/New_York", at: "15:40" },
 ];
 
 /** The scheduler only fires a slot this many minutes after its time; later it counts as missed. */

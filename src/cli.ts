@@ -6,6 +6,7 @@ import { AlpacaBroker } from "./broker/alpaca";
 import { FakeBroker } from "./broker/fake";
 import { assertPaperOnly, makePaths, SCHEDULE_GRACE_MINUTES } from "./config";
 import { readLock } from "./lock";
+import { serveDashboard } from "./dashboard/server";
 import { createLogger, makeRedactor, type Logger } from "./log";
 import { formatAlert } from "./report";
 import { runOnce } from "./run";
@@ -24,7 +25,7 @@ function parseArgs(argv: string[]) {
     const i = rest.indexOf(name);
     return i >= 0 ? rest[i + 1] : undefined;
   };
-  return { command, fake: flag("--fake"), force: flag("--force"), slot: value("--slot") };
+  return { command, fake: flag("--fake"), force: flag("--force"), slot: value("--slot"), port: value("--port") };
 }
 
 function makeBroker(fake: boolean, s: Secrets): Broker {
@@ -116,6 +117,17 @@ async function status(args: ReturnType<typeof parseArgs>, secrets: Secrets, reda
   }
 }
 
+function dashboard(args: ReturnType<typeof parseArgs>, secrets: Secrets, redact: (t: string) => string) {
+  let broker: Broker;
+  try {
+    broker = makeBroker(args.fake, secrets);
+  } catch (e) {
+    console.error(`${(e as Error).message}. Use --fake to look at the fake broker.`);
+    process.exit(1);
+  }
+  serveDashboard({ paths, staticDir: join(ROOT, "dashboard"), broker, fake: args.fake, port: Number(args.port ?? 4173), redact });
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const secrets = await loadSecrets(ROOT);
@@ -133,8 +145,10 @@ async function main() {
       return schedule(args, redact);
     case "status":
       return status(args, secrets, redact);
+    case "dashboard":
+      return dashboard(args, secrets, redact);
     default:
-      console.log("Usage: bun src/cli.ts <once|schedule|status> [--fake] [--slot HH:MM] [--force]");
+      console.log("Usage: bun src/cli.ts <once|schedule|status|dashboard> [--fake] [--slot HH:MM] [--force] [--port N]");
       process.exit(1);
   }
 }

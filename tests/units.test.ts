@@ -3,7 +3,7 @@ import { parseDecision } from "../src/brain/schema";
 import { applyCage, type CageInput } from "../src/cage";
 import { assertPaperOnly } from "../src/config";
 import { makeRedactor } from "../src/log";
-import { dueSlot, missedSlots, nextSlot, makeSlot } from "../src/slots";
+import { dueSlot, firesAt, latestSlotToday, missedSlots, nextSlot, makeSlot, romeFireTime } from "../src/slots";
 
 const base: CageInput = {
   proposed: [],
@@ -72,6 +72,30 @@ describe("slots", () => {
     expect(dueSlot(new Date("2026-09-24T13:45:00Z"), 30)?.runId).toBe("2026-09-24-1540");
     expect(dueSlot(new Date("2026-09-24T15:00:00Z"), 30)).toBeNull();
     expect(dueSlot(new Date("2026-09-26T13:45:00Z"), 30)).toBeNull(); // Saturday
+  });
+
+  // US opens 09:30 and closes 16:00 New York: market slots must stay 10 min after the open
+  // and 20 min before the close in every DST combination.
+  const romeTimes = (date: string) => ["09:00", "15:40", "18:30", "21:40"].map((t) => romeFireTime(makeSlot(date, t)));
+  test("both on summer time (Rome UTC+2, NY UTC-4)", () => {
+    expect(romeTimes("2026-09-24")).toEqual(["09:00", "15:40", "18:30", "21:40"]);
+  });
+  test("both on winter time (Rome UTC+1, NY UTC-5)", () => {
+    expect(romeTimes("2026-12-01")).toEqual(["09:00", "15:40", "18:30", "21:40"]);
+  });
+  test("autumn gap: Rome back on winter time, NY still on summer time", () => {
+    expect(romeTimes("2026-10-27")).toEqual(["09:00", "14:40", "17:30", "20:40"]);
+    expect(firesAt(makeSlot("2026-10-27", "21:40")).toISOString()).toBe("2026-10-27T19:40:00.000Z"); // 15:40 EDT
+    expect(dueSlot(new Date("2026-10-27T19:45:00Z"), 30)?.runId).toBe("2026-10-27-2140");
+    expect(dueSlot(new Date("2026-10-27T13:41:00Z"), 30)?.runId).toBe("2026-10-27-1540"); // 14:41 Rome
+    expect(dueSlot(new Date("2026-10-27T12:43:00Z"), 30)).toBeNull(); // 13:43 Rome: before the open
+  });
+  test("spring gap: NY on summer time, Rome still on winter time", () => {
+    expect(romeTimes("2027-03-16")).toEqual(["09:00", "14:40", "17:30", "20:40"]);
+    expect(latestSlotToday(new Date("2027-03-16T14:00:00Z"))?.name).toBe("opening"); // 15:00 Rome
+  });
+  test("next run in the report uses the real Rome time", () => {
+    expect(romeFireTime(nextSlot(makeSlot("2026-10-27", "09:00")))).toBe("14:40");
   });
 });
 

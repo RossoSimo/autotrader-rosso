@@ -81,7 +81,7 @@ export interface Notifier {
 
 export interface Slot {
   date: string; // YYYY-MM-DD, Rome
-  time: string; // HH:MM, Rome
+  time: string; // HH:MM slot label (usual Rome time; see SLOTS for when it really fires)
   name: SlotName;
   runId: string; // YYYY-MM-DD-HHMM
 }

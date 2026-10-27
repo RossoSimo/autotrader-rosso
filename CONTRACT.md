@@ -48,6 +48,8 @@ Before submitting, if Alpaca already has an order with that id, don't resend it 
 | 18:30 | mid-session | checks, stop loss |
 | 21:40 | closing | closes the day and writes the report |
 
+The briefing is pinned to Rome time. The other three are pinned to New York time (09:40, 12:30, 15:40 ET), because the US market runs 09:30–16:00 ET. Italy and the US change clocks on different dates, so for about a week in late October and two weeks in March they fire one hour earlier in Rome (14:40, 17:30, 20:40). The times in the table stay the slot names used in run ids and `--slot`.
+
 `bun run schedule` checks the time every 30 seconds and launches the run that is due, only if it is newer than the last baton. `bun run once` immediately launches today's most recent scheduled run (`--slot 15:40` to choose it, `--force` to redo it). `bun run status` prints lock, last baton, account.
 
 ## The cage (rules in the code, not in the model's prompt)

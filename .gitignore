@@ -26,6 +26,10 @@ coverage/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Installed agent skills (reinstall from skills-lock.json)
+.agents/
+.claude/skills/
+
 # Editors
 .vscode/
 .idea/
@@ -36,3 +40,6 @@ coverage/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Design-check screenshots and scratch (taste-skill)
+.taste-skill/

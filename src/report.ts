@@ -1,3 +1,4 @@
+import { romeFireTime } from "./slots";
 import type { Account, BatonOrder, Slot } from "./types";
 
 export interface RunOutcome {
@@ -40,6 +41,6 @@ export function formatReport(o: RunOutcome): string {
   } else {
     lines.push("Account: unavailable (broker error).");
   }
-  lines.push(`Next run: ${o.next.date} ${o.next.time} (${o.next.name})`);
+  lines.push(`Next run: ${o.next.date} ${romeFireTime(o.next)} Rome (${o.next.name})`);
   return lines.join("\n");
 }

@@ -6,6 +6,7 @@
     "schedule": "bun src/cli.ts schedule",
     "once": "bun src/cli.ts once",
     "status": "bun src/cli.ts status",
+    "dashboard": "bun src/cli.ts dashboard",
     "test": "bun test"
   }
 }

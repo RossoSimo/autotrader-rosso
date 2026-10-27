@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rosso · Today</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="rosso.css">
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Rosso">
+    <a class="mark" href="#overview" title="Rosso, paper trading agent" aria-label="Rosso home">
+      <!-- four runs a day on one baseline; the last, the close, in the accent -->
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="13" width="3" height="7" rx="1" fill="#ffffff"/>
+        <rect x="7.5" y="9" width="3" height="11" rx="1" fill="#ffffff"/>
+        <rect x="13" y="11" width="3" height="9" rx="1" fill="#ffffff"/>
+        <rect x="18.5" y="4" width="3" height="16" rx="1" fill="#4a8ad6"/>
+      </svg>
+    </a>
+    <a class="nav" href="#overview" data-nav="overview" title="Today">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span>Today</span>
+    </a>
+    <a class="nav" href="#runs" data-nav="runs" title="Runs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+      <span>Runs</span>
+    </a>
+  </nav>
+
+  <main class="canvas">
+    <div class="title-row">
+    <div>
+      <p class="crumb" data-crumb>Rosso · Alpaca paper account</p>
+      <h1 data-title>Today</h1>
+      <p class="sub" data-finding><span class="skeleton" style="width: 52ch"></span></p>
+    </div>
+    <div class="title-actions">
+      <span class="stamp" data-stamp></span>
+      <button class="btn" type="button" data-refresh>Refresh</button>
+    </div>
+    </div>
+
+    <!-- ================= Today ================= -->
+    <section data-view="overview">
+      <div class="grid">
+        <section class="panel span-12" aria-labelledby="h-day">
+          <header>
+            <h2 id="h-day">Today's runs, Rome time</h2>
+            <div class="legend" aria-hidden="true">
+              <span><i class="done"></i>Ran</span><span><i class="due"></i>Due or running</span><span><i class="next"></i>Next</span><span><i></i>Later</span><span><i class="missed"></i>Missed</span><span><i class="band"></i>US session</span><span><i class="now"></i>Now</span>
+            </div>
+          </header>
+          <div class="strip" data-strip role="img" aria-label="Today's runs"></div>
+          <ol class="strip-list" data-strip-list></ol>
+          <div data-day-notices></div>
+        </section>
+
+        <div class="kpis span-12" data-kpis aria-label="Account">
+          <div class="kpi lead"><div class="kpi-label">Equity</div><div class="kpi-value num"><span class="skeleton"></span></div><div class="delta">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-label">Cash</div><div class="kpi-value num"><span class="skeleton"></span></div><div class="delta">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-label">Day P&amp;L</div><div class="kpi-value num"><span class="skeleton"></span></div><div class="delta">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-label">Invested</div><div class="kpi-value num"><span class="skeleton"></span></div><div class="delta">&nbsp;</div></div>
+          <div class="kpi"><div class="kpi-label">US market</div><div class="kpi-value"><span class="skeleton"></span></div><div class="delta">&nbsp;</div></div>
+        </div>
+
+        <section class="panel span-12" aria-labelledby="h-pos">
+          <header><h2 id="h-pos">Positions</h2><span class="meta" data-pos-meta></span></header>
+          <div data-positions><span class="skeleton" style="width: 40ch"></span></div>
+        </section>
+
+        <section class="panel span-7" id="decision" aria-labelledby="h-dec">
+          <header><h2 id="h-dec">Last decision</h2><span class="meta" data-dec-meta></span></header>
+          <div data-decision><span class="skeleton" style="width: 60ch"></span></div>
+        </section>
+
+        <section class="panel span-5 stretch" aria-labelledby="h-runs">
+          <header><h2 id="h-runs">Recent runs</h2><span class="meta" data-runs-meta></span></header>
+          <ol class="runlist" data-runlist></ol>
+          <footer><a class="card-link" href="#runs">All runs</a></footer>
+        </section>
+      </div>
+    </section>
+
+    <!-- ================= Runs ================= -->
+    <section data-view="runs" hidden>
+      <div class="grid">
+        <section class="panel span-8" aria-labelledby="h-eq">
+          <header><h2 id="h-eq">Equity at the end of each run</h2><span class="meta">USD</span></header>
+          <div class="chart" data-equity-chart></div>
+        </section>
+        <section class="panel span-4" aria-labelledby="h-tot">
+          <header><h2 id="h-tot">Since the first run</h2></header>
+          <dl class="facts" data-facts></dl>
+        </section>
+        <section class="panel span-12" aria-labelledby="h-all">
+          <header><h2 id="h-all">Every run</h2><span class="meta">Newest first · select a run to read its reasoning</span></header>
+          <div class="table-wrap"><table class="runs-table" data-runs-table></table></div>
+        </section>
+        <section class="panel span-12" aria-labelledby="h-ord">
+          <header><h2 id="h-ord">Orders at Alpaca, last 48 hours</h2><span class="meta" data-orders-meta></span></header>
+          <div class="table-wrap" data-orders></div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="charts.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
